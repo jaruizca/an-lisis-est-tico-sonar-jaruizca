@@ -327,64 +327,68 @@ public final class FibonacciHeap<T> {
 
         /* Traverse this list and perform the appropriate unioning steps. */
         for (Entry<T> curr : toVisit) {
-            /* Keep merging until a match arises. */
-            while (true) {
-                /* Ensure that the list is long enough to hold an element of this
-                 * degree.
-                 */
-                while (curr.mDegree >= treeTable.size())
-                    treeTable.add(null);
-
-                /* If nothing's here, we're can record that this tree has this size
-                 * and are done processing.
-                 */
-                if (treeTable.get(curr.mDegree) == null) {
-                    treeTable.set(curr.mDegree, curr);
-                    break;
-                }
-
-                /* Otherwise, merge with what's there. */
-                Entry<T> other = treeTable.get(curr.mDegree);
-                treeTable.set(curr.mDegree, null); // Clear the slot
-
-                /* Determine which of the two trees has the smaller root, storing
-                 * the two tree accordingly.
-                 */
-                Entry<T> min = (other.mPriority < curr.mPriority) ? other : curr;
-                Entry<T> max = (other.mPriority < curr.mPriority) ? curr : other;
-
-                /* Break max out of the root list, then merge it into min's child
-                 * list.
-                 */
-                max.mNext.mPrev = max.mPrev;
-                max.mPrev.mNext = max.mNext;
-
-                /* Make it a singleton so that we can merge it. */
-                max.mNext = max.mPrev = max;
-                min.mChild = mergeLists(min.mChild, max);
-
-                /* Reparent max appropriately. */
-                max.mParent = min;
-
-                /* Clear max's mark, since it can now lose another child. */
-                max.mIsMarked = false;
-
-                /* Increase min's degree; it now has another child. */
-                ++min.mDegree;
-
-                /* Continue merging this tree. */
-                curr = min;
-            }
-
-            /* Update the global min based on this node.  Note that we compare
-             * for <= instead of < here.  That's because if we just did a
-             * reparent operation that merged two different trees of equal
-             * priority, we need to make sure that the min pointer points to
-             * the root-level one.
-             */
-            if (curr.mPriority <= mMin.mPriority) mMin = curr;
+            extracted(curr, treeTable);
         }
         return minElem;
+    }
+
+    private void extracted(es.usc.citius.lab.hipster.collections.FibonacciHeap.Entry<T> curr, List<Entry<T>> treeTable) {
+        /* Keep merging until a match arises. */
+        while (true) {
+            /* Ensure that the list is long enough to hold an element of this
+             * degree.
+             */
+            while (curr.mDegree >= treeTable.size())
+                treeTable.add(null);
+
+            /* If nothing's here, we're can record that this tree has this size
+             * and are done processing.
+             */
+            if (treeTable.get(curr.mDegree) == null) {
+                treeTable.set(curr.mDegree, curr);
+                break;
+            }
+
+            /* Otherwise, merge with what's there. */
+            Entry<T> other = treeTable.get(curr.mDegree);
+            treeTable.set(curr.mDegree, null); // Clear the slot
+
+            /* Determine which of the two trees has the smaller root, storing
+             * the two tree accordingly.
+             */
+            Entry<T> min = (other.mPriority < curr.mPriority) ? other : curr;
+            Entry<T> max = (other.mPriority < curr.mPriority) ? curr : other;
+
+            /* Break max out of the root list, then merge it into min's child
+             * list.
+             */
+            max.mNext.mPrev = max.mPrev;
+            max.mPrev.mNext = max.mNext;
+
+            /* Make it a singleton so that we can merge it. */
+            max.mNext = max.mPrev = max;
+            min.mChild = mergeLists(min.mChild, max);
+
+            /* Reparent max appropriately. */
+            max.mParent = min;
+
+            /* Clear max's mark, since it can now lose another child. */
+            max.mIsMarked = false;
+
+            /* Increase min's degree; it now has another child. */
+            ++min.mDegree;
+
+            /* Continue merging this tree. */
+            curr = min;
+        }
+
+        /* Update the global min based on this node.  Note that we compare
+         * for <= instead of < here.  That's because if we just did a
+         * reparent operation that merged two different trees of equal
+         * priority, we need to make sure that the min pointer points to
+         * the root-level one.
+         */
+        if (curr.mPriority <= mMin.mPriority) mMin = curr;
     }
 
     /**
