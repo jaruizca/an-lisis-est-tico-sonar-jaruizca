@@ -58,11 +58,6 @@ public class HashTableHipsterGraphTest {
     }
 
     @Test
-    public void testRemoveEdge() throws Exception {
-
-    }
-
-    @Test
     public void testConnect() throws Exception {
         graph.connect("X","Y",1.0d);
         assertTrue(Sets.newHashSet(graph.vertices()).contains("X"));
